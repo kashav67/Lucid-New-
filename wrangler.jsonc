@@ -25,7 +25,7 @@
 		{
 			"binding": "DB",
 			"database_name": "lucid",
-			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"database_id": "6977215d-c13b-46d2-b201-2f7a4b4c326a",
 			"migrations_dir": "migrations"
 		}
 	],
