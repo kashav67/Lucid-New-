@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin — Lucid Detailing{% endblock %}
+
+{% block content %}
+  <section class="admin-login">
+    <div class="login-card reveal">
+      <img class="login-logo" src="{{ url_for('static', filename='icon.png') }}" alt="" />
+
+      {% with msgs = get_flashed_messages() %}
+        {% if msgs %}<div class="form-errors">{% for m in msgs %}<p>{{ m }}</p>{% endfor %}</div>{% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('admin') }}">
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" required autofocus placeholder="••••••••" />
+        </label>
+        <button type="submit" class="btn btn-silver btn-lg">Log in</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

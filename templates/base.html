@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Lucid Detailing{% endblock %}</title>
+  <meta name="description" content="Lucid Detailing — premium interior, exterior, ceramic coating and paint correction. Showroom shine, every time." />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}" />
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon.png') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <noscript><style>#site{opacity:1!important}#intro{display:none!important}</style></noscript>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+
+  <canvas id="rain-canvas"></canvas>
+
+  {% block overlay %}{% endblock %}
+
+  <div id="site">
+    <header class="nav" id="nav">
+      <a href="{{ url_for('index') }}" class="brand">
+        <img class="brand-mark" src="{{ url_for('static', filename='icon.png') }}" alt="" />
+        <span class="brand-text">LUCID<span class="brand-thin">DETAILING</span></span>
+      </a>
+      <nav class="nav-links">
+        <a href="{{ url_for('services') }}" class="{{ 'active' if request.endpoint=='services' }}">Services</a>
+        <a href="{{ url_for('about') }}" class="{{ 'active' if request.endpoint=='about' }}">About</a>
+        <a href="{{ url_for('contact') }}" class="{{ 'active' if request.endpoint=='contact' }}">Contact</a>
+      </nav>
+      <a href="{{ url_for('book') }}" class="btn btn-silver btn-sm">Book Now</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+      <div class="footer-brand">LUCID<span class="brand-thin">DETAILING</span></div>
+      <nav class="footer-links">
+        <a href="{{ url_for('services') }}">Services</a>
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('contact') }}">Contact</a>
+        <a href="{{ url_for('book') }}">Book</a>
+        <a href="{{ url_for('terms') }}">Terms</a>
+      </nav>
+      <p>&copy; 2026 Lucid Detailing. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script type="module" src="{{ url_for('static', filename='js/intro.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/site.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

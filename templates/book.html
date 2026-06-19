@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Book a Detail — Lucid Detailing{% endblock %}
+
+{% block content %}
+  {% set f = form|default({}) %}
+  <section class="page-hero short">
+    <div class="hero-glow"></div>
+    <p class="eyebrow reveal">Book online</p>
+    <h1 class="reveal">Reserve your detail.</h1>
+    <p class="page-sub reveal">Tell us about your vehicle and pick a service.</p>
+  </section>
+
+  <section class="book-wrap">
+    {% if booked %}
+    <div class="confirm-card reveal">
+      <div class="confirm-check"></div>
+      <h2>Thanks, {{ booked.name }}!</h2>
+      <p>Your booking request has been received.</p>
+      <ul class="confirm-summary">
+        {% if booked.date %}<li><span>Appointment</span><strong>{{ booked.date }} at {{ booked.time }}</strong></li>{% endif %}
+        <li><span>Service</span><strong>{{ booked.service }}</strong></li>
+        <li><span>Car size</span><strong>{{ booked.size }}</strong></li>
+        <li><span>Service price</span><strong>${{ booked.price }}</strong></li>
+        {% if booked.travel_fee %}
+        <li><span>Travel fee{% if booked.miles %} ({{ booked.miles }} mi){% endif %}</span><strong>+${{ '%g'|format(booked.travel_fee) }}</strong></li>
+        {% endif %}
+        <li class="confirm-grand"><span>Total</span><strong class="grad">${{ '%g'|format(booked.total) }}</strong></li>
+      </ul>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">Back home</a>
+    </div>
+    {% else %}
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% if msgs %}
+      <div class="form-errors reveal">
+        {% for cat, m in msgs %}<p>{{ m }}</p>{% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <form class="book-form reveal" method="POST" action="{{ url_for('book') }}"
+          id="bookForm"
+          data-pricing='{"services": {{ services|tojson }}, "sizes": {{ sizes|tojson }}}'>
+      <div class="field-row">
+        <label class="field">
+          <span>Name *</span>
+          <input type="text" name="name" required value="{{ f.get('name','') }}" placeholder="Your full name" />
+        </label>
+        <label class="field">
+          <span>Phone *</span>
+          <input type="tel" name="phone" required value="{{ f.get('phone','') }}" placeholder="(000) 000-0000" />
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Email *</span>
+          <input type="email" name="email" required value="{{ f.get('email','') }}" placeholder="you@email.com" />
+        </label>
+        <label class="field">
+          <span>Address *</span>
+          <input type="text" name="address" required value="{{ f.get('address','') }}" placeholder="Start typing, then pick a suggestion" autocomplete="off" />
+          <small class="field-err" id="addrErr" hidden>Please choose your address from the dropdown suggestions.</small>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Car (make &amp; model)</span>
+          <input type="text" name="car" value="{{ f.get('car','') }}" placeholder="e.g. 2021 Toyota RAV4" />
+        </label>
+        <label class="field">
+          <span>Car size *</span>
+          <select name="size" id="sizeSelect" required>
+            <option value="" disabled {{ 'selected' if not f.get('size') }}>Choose size…</option>
+            {% for key, s in sizes.items() %}
+            <option value="{{ key }}" {{ 'selected' if f.get('size')==key }}>{{ s.label }}{% if s.surcharge %} (+${{ s.surcharge }}){% endif %}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <label class="field {{ '' if (f.get('size') or f.get('service')) else 'hidden' }}" id="serviceField">
+        <span>Service *</span>
+        <select name="service" id="serviceSelect" required {{ '' if (f.get('size') or f.get('service')) else 'disabled' }}>
+          <option value="" disabled {{ 'selected' if not f.get('service') }}>Choose a service…</option>
+          {% for key, s in services.items() %}
+          <option value="{{ key }}" {{ 'selected' if f.get('service')==key }}>{{ s.label }} — from ${{ s.price }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="field {{ '' if f.get('service') else 'hidden' }}" id="apptField">
+        <span>Appointment *</span>
+        <button type="button" class="appt-btn" id="apptBtn">
+          {% if f.get('date') and f.get('time') %}{{ f.get('date') }} · {{ f.get('time') }}{% else %}Choose date &amp; time{% endif %}
+        </button>
+        <input type="hidden" name="date" id="bookDate" value="{{ f.get('date','') }}" />
+        <input type="hidden" name="time" id="bookTime" value="{{ f.get('time','') }}" />
+      </label>
+
+      <label class="field">
+        <span>Anything else?</span>
+        <textarea name="info" rows="4" placeholder="Pet hair, heavy stains, scheduling notes…">{{ f.get('info','') }}</textarea>
+      </label>
+
+      <div class="summary-card">
+        <p class="receipt-hint" id="receiptHint">Select a car size and service to see your breakdown.</p>
+        <div class="receipt" id="receipt" hidden>
+          <p class="receipt-title">Your detail</p>
+          <p class="receipt-desc" id="receiptDesc"></p>
+          <ul class="receipt-lines" id="receiptLines"></ul>
+          <div class="receipt-grand"><span>Total</span><strong class="grad" id="receiptTotal">—</strong></div>
+          <p class="receipt-est" id="receiptEst" hidden></p>
+        </div>
+        <label class="agree">
+          <input type="checkbox" name="agree" value="yes" required {{ 'checked' if f.get('agree') }} />
+          <span>I agree to the <a href="{{ url_for('terms') }}" target="_blank" rel="noopener">terms &amp; conditions</a>.</span>
+        </label>
+        <button type="submit" class="btn btn-silver btn-lg summary-submit">Request Booking</button>
+        <div class="pay-methods">
+          <span class="pay-label">We accept</span>
+          <span class="pay-chip cash">Cash</span>
+          <span class="pay-chip cardpay">Card</span>
+          <span class="pay-chip applepay">Apple&nbsp;Pay</span>
+          <span class="pay-chip venmo">Venmo</span>
+          <span class="pay-chip zelle">Zelle</span>
+          <span class="pay-chip cashapp">Cash&nbsp;App</span>
+        </div>
+        <p class="pay-note">Payment is collected after your detail is complete.</p>
+      </div>
+    </form>
+
+    <div class="modal" id="apptModal" hidden>
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-card appt-modal">
+        <button class="modal-close" data-close aria-label="Close">&times;</button>
+        <h3>Pick a date &amp; time</h3>
+        <p class="modal-sub" id="apptDur"></p>
+        <div class="appt-cal">
+          <div class="cal-head">
+            <button type="button" id="apptPrev" aria-label="Previous month">&lsaquo;</button>
+            <span id="apptLabel"></span>
+            <button type="button" id="apptNext" aria-label="Next month">&rsaquo;</button>
+          </div>
+          <div class="cal-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+          <div class="cal-grid" id="apptGrid"></div>
+        </div>
+        <div class="appt-times" id="apptTimes"><p class="appt-times-hint">Select a date to see open times.</p></div>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Services & Pricing — Lucid Detailing{% endblock %}
+
+{% block content %}
+  <section class="page-hero">
+    <div class="hero-glow"></div>
+    <p class="eyebrow reveal">What we do</p>
+    <h1 class="reveal">Services &amp; pricing.</h1>
+    <p class="page-sub reveal">Premium, hand-finished detailing tailored to your vehicle. Prices below are for a small car — size pricing is shown further down.</p>
+  </section>
+
+  <section class="services">
+    <div class="service-grid">
+      {% for svc in services %}
+      <article class="card reveal">
+        <div class="card-glow"></div>
+        <span class="svc-ic">
+          {% if svc.icon == 'interior' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.2L18 9l-4.4 1.8L12 15l-1.6-4.2L6 9l4.4-1.8z"/><path d="M18.5 13l.8 2.1 2.2.8-2.2.8-.8 2.1-.8-2.1-2.2-.8 2.2-.8z"/></svg>
+          {% elif svc.icon == 'exterior' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l1.7-4A2 2 0 0 1 7.5 7h9a2 2 0 0 1 1.8 1l1.7 4"/><rect x="3" y="12" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="18.3" r="1.6"/><circle cx="16.5" cy="18.3" r="1.6"/></svg>
+          {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16" r="3"/><circle cx="18.5" cy="16" r="3"/><path d="M5.5 16l3-4.5h4.5l2.5 4.5M8.5 11.5h5M16 11.5h2.5"/></svg>
+          {% endif %}
+        </span>
+        <h3>{{ svc.title }}</h3>
+        <ul class="svc-includes">
+          {% for it in svc['items'] %}<li>{{ it }}</li>{% endfor %}
+          <li class="svc-more">&amp; more</li>
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="pricing-section">
+    <div class="section-head reveal">
+      <p class="eyebrow">Packages</p>
+      <h2>Simple, honest pricing.</h2>
+      <p class="section-sub">Starting prices for a small car. Medium adds $25, large adds $50. Bikes are a flat ${{ bike_price }}.</p>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <h3>Full Detail</h3>
+        <p class="price-tag">${{ pricing.full.price }}<span>+</span></p>
+        <p class="price-desc">Interior &amp; exterior — the complete treatment.</p>
+        <a href="{{ url_for('book', service='full') }}" class="btn btn-silver btn-sm">Book Full Detail</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Interior Detail</h3>
+        <p class="price-tag">${{ pricing.interior.price }}<span>+</span></p>
+        <p class="price-desc">Deep clean inside — seats, carpets, surfaces, glass.</p>
+        <a href="{{ url_for('book', service='interior') }}" class="btn btn-ghost btn-sm">Book Interior</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Exterior Detail</h3>
+        <p class="price-tag">${{ pricing.exterior.price }}<span>+</span></p>
+        <p class="price-desc">Wash, decontaminate, and a flawless exterior finish.</p>
+        <a href="{{ url_for('book', service='exterior') }}" class="btn btn-ghost btn-sm">Book Exterior</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Bike Detail</h3>
+        <p class="price-tag">${{ bike_price }}</p>
+        <p class="price-desc">Full detail for bikes &amp; motorcycles.</p>
+        <a href="{{ url_for('book', size='bike') }}" class="btn btn-ghost btn-sm">Book Bike Detail</a>
+      </div>
+    </div>
+
+    <div class="size-note reveal">
+      <h4>Car size pricing</h4>
+      <ul>
+        {% for key, s in sizes.items() if key != 'bike' %}
+        <li><span>{{ s.label }}</span><strong>{{ '+ $%d'|format(s.surcharge) if s.surcharge else 'Base price' }}</strong></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="center-cta reveal">
+      <a href="{{ url_for('book') }}" class="btn btn-silver btn-lg">Book your detail</a>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,9 @@
+tunnel: 0895c2da-5b5c-4012-ab96-8c016df2221e
+credentials-file: C:\Users\kasha\.cloudflared\0895c2da-5b5c-4012-ab96-8c016df2221e.json
+
+ingress:
+  - hostname: luciddetailingva.com
+    service: http://127.0.0.1:5000
+  - hostname: www.luciddetailingva.com
+    service: http://127.0.0.1:5000
+  - service: http_status:404

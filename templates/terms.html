@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Terms &amp; Conditions — Lucid Detailing{% endblock %}
+
+{% block content %}
+  <section class="page-hero short">
+    <div class="hero-glow"></div>
+    <p class="eyebrow reveal">The fine print</p>
+    <h1 class="reveal">Terms &amp; Conditions</h1>
+    <p class="page-sub reveal">Please read these before booking. By booking an appointment you agree to the terms below.</p>
+  </section>
+
+  <section class="legal">
+    <div class="legal-body reveal">
+
+      <h3>1. Booking &amp; appointments</h3>
+      <p>Submitting the booking form is a request for service. We'll reach out
+      to confirm and to go over any details specific to your vehicle if needed.
+      Times are estimates — detailing can run longer or shorter depending on the
+      vehicle's condition.</p>
+
+      <h3>2. Pricing</h3>
+      <p>Prices shown are starting prices based on the service and vehicle size
+      you select. Heavily soiled vehicles, excessive pet hair, biohazards,
+      severe stains, or other conditions that require extra time or materials
+      may incur an additional charge, which we'll discuss with you before any
+      extra work begins. A travel fee may apply based on how far we travel to
+      reach you.</p>
+
+      <h3>3. Payment</h3>
+      <p>Payment is collected after the service is complete. We accept cash,
+      card, Venmo, Zelle, Apple Pay, and Cash App.</p>
+
+      <h3>4. Cancellations &amp; rescheduling</h3>
+      <p>If you need to cancel or reschedule, please give us as much notice as
+      possible. Repeated late cancellations or no-shows may affect future
+      bookings. If we ever have to reschedule on our end (weather, illness, or
+      circumstances beyond our control), we'll work with you to find a new time.</p>
+
+      <h3>5. Vehicle access &amp; condition</h3>
+      <p>For mobile appointments, please make sure the vehicle is accessible and,
+      where needed, that there's a safe place for us to work along with access to
+      water and power if your service requires it.</p>
+
+      <h3>6. Personal items</h3>
+      <p>Any personal belongings found in the vehicle are placed in a temporary
+      container during the detail and handed back to you once we're finished.</p>
+
+      <h3>7. Results &amp; pre-existing conditions</h3>
+      <p>We take great care with every vehicle, but detailing cannot undo
+      pre-existing damage. Scratches, swirl marks, paint defects, stains,
+      oxidation, water spots, odors, and wear that are already present may be
+      improved but cannot always be fully removed. We'll always tell you up front
+      if something is beyond what a given service can correct.</p>
+
+      <h3>8. Liability</h3>
+      <p>Before we begin, we record a detailed video of the vehicle inside and
+      out, documenting any pre-existing issues. We carry out our work with care
+      using standard, paint-safe products and methods. We are not liable for
+      damage resulting from pre-existing conditions, aftermarket parts, poor
+      prior repairs, fragile or improperly installed components, or
+      mechanical/electrical issues unrelated to our service.</p>
+
+      <h3>9. Photos &amp; videos</h3>
+      <p>We may take photos and videos of vehicles before, during, and after
+      service, and may use them on our website and social media. License plates
+      can be covered or blurred on request, or you can ask that your vehicle not
+      be posted at all — just let us know.</p>
+
+      <h3>10. Contact</h3>
+      <p>Questions about these terms? Reach us at
+      <a href="mailto:contact@luciddetailingva.com">contact@luciddetailingva.com</a>
+      or <a href="tel:+18044268373">(804) 426-8373</a>.</p>
+
+      <p class="legal-note">These terms may be updated from time to time. The
+      version shown here applies to your booking.</p>
+    </div>
+    <div class="center-cta reveal">
+      <a href="{{ url_for('book') }}" class="btn btn-silver">Back to booking</a>
+    </div>
+  </section>
+{% endblock %}

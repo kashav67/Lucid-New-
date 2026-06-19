@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Lucid Detailing — Premium Car Detailing{% endblock %}
+
+{% block content %}
+
+  <section class="hero" id="top">
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <h1 class="hero-title reveal" id="heroTitle">
+        <span class="ht-tagline shine" data-text="Reflect Excellence.">Reflect Excellence.</span>
+        <span class="ht-logo grad" aria-hidden="true">Lucid</span>
+      </h1>
+      <p class="hero-sub reveal">
+        Precision detailing that brings out a depth of shine you can see your
+        reflection in. Interior to ceramic — done right, every time.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="{{ url_for('book') }}" class="btn btn-silver">Book a Detail</a>
+        <a href="{{ url_for('services') }}" class="btn btn-ghost">View Services</a>
+      </div>
+    </div>
+    <a href="#{{ 'reviews' if reviews else 'work' }}" class="scroll-cue" aria-label="Scroll down">
+      <span>Scroll</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+  </section>
+
+  {% if reviews %}
+  <section class="reviews compact" id="reviews">
+    <div class="section-head reveal">
+      <h2>Don't just take our word for it</h2>
+    </div>
+    <div class="rv-row-wrap reveal">
+      <div class="rv-row">
+        {% for r in reviews %}
+        <figure class="rv-card">
+          <div class="rv-stars">{% for i in range(5) %}<span class="{{ '' if i < r.stars else 'off' }}">★</span>{% endfor %}</div>
+          <p class="rv-body">“{{ r.body }}”</p>
+          <div class="rv-foot">
+            <span class="rv-name">{{ r.name }}</span>
+            <span class="rv-when">{{ r.when }}</span>
+          </div>
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="work" id="work">
+    <div class="section-head reveal">
+      <h2>The Lucid Effect</h2>
+    </div>
+    {% if gallery %}
+    <div class="ba-row-wrap reveal">
+      <div class="ba-row">
+        {% for g in gallery %}
+        <figure class="ba-card">
+          <img class="ba-c-before" src="{{ url_for('static', filename='uploads/' + g['before_img']) }}" alt="before" />
+          <img class="ba-c-after" src="{{ url_for('static', filename='uploads/' + g['after_img']) }}" alt="after" />
+          <span class="ba-c-tag before">Before</span>
+          <span class="ba-c-tag after">After</span>
+          {% if g['title'] %}<figcaption class="ba-c-title">{{ g['title'] }}</figcaption>{% endif %}
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="work-grid">
+      <div class="work-tile reveal"></div>
+      <div class="work-tile reveal"></div>
+      <div class="work-tile reveal"></div>
+      <div class="work-tile reveal"></div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="cta">
+    <div class="cta-inner reveal">
+      <h2>Ready for the shine?</h2>
+      <p>Book your detail today and see the difference precision makes.</p>
+      <div class="cta-actions">
+        <a href="{{ url_for('book') }}" class="btn btn-silver btn-lg">Book Now</a>
+        <a href="{{ url_for('contact') }}" class="btn btn-ghost btn-lg">Contact Us</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

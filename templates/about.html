@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}About — Lucid Detailing{% endblock %}
+
+{% block content %}
+  <section class="page-hero">
+    <div class="hero-glow"></div>
+    <p class="eyebrow reveal">Why Lucid</p>
+    <h1 class="reveal">Obsessed with the details others miss.</h1>
+    <p class="page-sub reveal">We treat every vehicle like it's our own — no shortcuts, just meticulous work and a finish you can see yourself in.</p>
+  </section>
+
+  <section class="about">
+    <div class="about-card reveal">
+      <div class="visual-panel"></div>
+      <div class="visual-shine"></div>
+      <div class="about-text">
+        <h2>Craft over convenience.</h2>
+        <p>
+          We're a local mobile detailing service that takes the work seriously. Every car
+          gets the same hands-on attention — we take our time, use products that
+          are safe for your paint, and don't rush or cut corners. The goal is
+          simple: hand it back looking better than you expected, every time.
+        </p>
+        <ul class="check-list">
+          <li>Premium, paint-safe products only</li>
+          <li>Mobile service available at your door</li>
+          <li>Meticulous, hand-finished work every time</li>
+        </ul>
+        <a href="{{ url_for('book') }}" class="btn btn-silver">Book a detail</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="cta-inner reveal">
+      <h2>See the difference.</h2>
+      <p>Experience detailing done the right way.</p>
+      <div class="cta-actions">
+        <a href="{{ url_for('book') }}" class="btn btn-silver btn-lg">Book Now</a>
+        <a href="{{ url_for('contact') }}" class="btn btn-ghost btn-lg">Contact Us</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

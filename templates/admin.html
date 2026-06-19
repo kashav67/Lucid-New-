@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Admin — Lucid Detailing{% endblock %}
+
+{% block content %}
+  <section class="admin-head">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Dashboard</h1>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="btn btn-ghost btn-sm">Log out</a>
+  </section>
+
+  <nav class="admin-tabs" id="adminTabs">
+    <button type="button" data-tab="bookings" class="active">Bookings</button>
+    <button type="button" data-tab="schedule">Schedule</button>
+    <button type="button" data-tab="customers">Customers</button>
+    <button type="button" data-tab="photos">Photos</button>
+    <button type="button" data-tab="reviews">Reviews</button>
+  </nav>
+
+  <section class="admin-section admin-panel" data-tab="schedule" hidden>
+    <h2 class="admin-h2">Availability</h2>
+    <div class="sched-grid">
+      <div class="calendar">
+        <div class="cal-head">
+          <button type="button" id="calPrev" aria-label="Previous month">&lsaquo;</button>
+          <span id="calLabel"></span>
+          <button type="button" id="calNext" aria-label="Next month">&rsaquo;</button>
+        </div>
+        <div class="cal-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <p class="cal-hint"><span class="dot avail"></span> available &nbsp; <span class="dot booked"></span> has bookings — click a day to toggle</p>
+      </div>
+
+      <div class="sched-side">
+        <div class="panel">
+          <h3>Hours</h3>
+          <div class="ts-row">
+            <label>Open<select id="tsStart"></select></label>
+            <label>Close<select id="tsEnd"></select></label>
+            <label>Travel buffer<select id="tsMins">
+              <option value="0">None</option>
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60">60 min</option>
+            </select></label>
+          </div>
+          <button type="button" class="btn btn-silver btn-sm" id="tsSave">Save hours</button>
+          <p class="ts-preview" id="tsPreview"></p>
+        </div>
+        <div class="panel">
+          <h3>Quick set — <span id="quickMonth"></span></h3>
+          <div class="quick-opts">
+            <button type="button" data-quick="weekdays">Weekdays</button>
+            <button type="button" data-quick="weekends">Weekends</button>
+            <button type="button" data-quick="all">All days</button>
+            <button type="button" data-quick="clear">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-section admin-panel" data-tab="bookings">
+    <div class="bookings-head">
+      <h2 class="admin-h2">Bookings <span class="count">{{ bookings|length }}</span></h2>
+      <div class="filters" id="filters">
+        <button type="button" data-filter="today">Today</button>
+        <button type="button" data-filter="week">This week</button>
+        <button type="button" data-filter="upcoming">Upcoming</button>
+        <button type="button" data-filter="all" class="active">All</button>
+      </div>
+    </div>
+    <p class="filter-note" id="filterNote" hidden></p>
+
+    <div class="admin-grid" id="bookingsGrid">
+      {% if not bookings %}<p class="empty-note">No bookings yet.</p>{% endif %}
+      {% for b in bookings %}
+      {% set tf = b['travel_fee'] or 0 %}
+      <article class="booking-card" data-id="{{ b['id'] }}" data-date="{{ b['date'] or '' }}">
+        <div class="booking-top">
+          <h3>{{ b['name'] }}</h3>
+          <span class="booking-price grad">${{ '%g'|format(b['price'] + tf) }}</span>
+        </div>
+        <p class="booking-meta">
+          {% if b['date'] %}<strong class="booking-when">{{ b['date'] }}{% if b['time'] %} · {{ b['time'] }}{% endif %}</strong> · {% endif %}booked {{ b['created'] }}
+        </p>
+        <ul class="booking-details">
+          <li><span>Service</span><strong>{{ b['service'] }}</strong></li>
+          <li><span>Size</span><strong>{{ b['size'] }}</strong></li>
+          <li><span>Phone</span><strong><a href="tel:{{ b['phone'] }}">{{ b['phone'] }}</a></strong></li>
+          <li><span>Email</span><strong><a href="mailto:{{ b['email'] }}">{{ b['email'] }}</a></strong></li>
+          <li><span>Address</span><strong>{{ b['address'] or '—' }}</strong></li>
+          {% if b['car'] %}<li><span>Car</span><strong>{{ b['car'] }}</strong></li>{% endif %}
+          <li><span>Service price</span><strong>${{ b['price'] }}</strong></li>
+          {% if tf %}<li class="fee-line"><span>Travel fee</span><strong>+${{ '%g'|format(tf) }}</strong></li>{% endif %}
+        </ul>
+        {% if b['info'] %}<p class="booking-note">“{{ b['info'] }}”</p>{% endif %}
+        <div class="booking-actions">
+          <button type="button" class="btn btn-ghost btn-sm edit-btn" data-id="{{ b['id'] }}">Edit</button>
+          <button type="button" class="btn btn-ghost btn-sm del-btn" data-id="{{ b['id'] }}">Delete</button>
+        </div>
+      </article>
+      {% endfor %}
+      <p class="empty-note" id="filterEmpty" hidden>No bookings match this filter.</p>
+    </div>
+  </section>
+
+  <section class="admin-section admin-panel" data-tab="customers" hidden>
+    <h2 class="admin-h2">Customers <span class="count">{{ customers|length }}</span></h2>
+    {% if not customers %}<p class="empty-note">No customers yet — they're saved automatically when someone books.</p>{% endif %}
+    <div class="cust-list">
+      {% for c in customers %}
+      <button type="button" class="cust-row" data-id="{{ c['id'] }}">
+        <span class="cust-id">
+          <strong>{{ c['name'] or 'Unnamed' }}</strong>
+          <span class="cust-sub">{{ c['email'] }}{% if c['phone'] %} · {{ c['phone'] }}{% endif %}</span>
+        </span>
+        <span class="cust-count">{{ cust_bookings[c['id']]|length }} booking{{ 's' if cust_bookings[c['id']]|length != 1 }} &rsaquo;</span>
+      </button>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-section admin-panel" data-tab="photos" hidden>
+    <h2 class="admin-h2">Before &amp; after gallery <span class="count">{{ gallery|length }}</span></h2>
+    {% with msgs = get_flashed_messages() %}
+      {% if msgs %}<div class="form-errors">{% for m in msgs %}<p>{{ m }}</p>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    <form class="gallery-form panel" method="POST" action="{{ url_for('gallery_add') }}" enctype="multipart/form-data">
+      <label class="field"><span>Title (optional)</span>
+        <input name="title" placeholder="e.g. 2019 Mustang GT" />
+      </label>
+      <div class="field-row">
+        <label class="field"><span>Before photo *</span>
+          <input type="file" name="before" accept="image/*" required />
+        </label>
+        <label class="field"><span>After photo *</span>
+          <input type="file" name="after" accept="image/*" required />
+        </label>
+      </div>
+      <button type="submit" class="btn btn-silver">Add car</button>
+    </form>
+
+    <div class="gallery-grid">
+      {% for g in gallery %}
+      <div class="gallery-item" data-id="{{ g['id'] }}">
+        <div class="gi-imgs">
+          <img src="{{ url_for('static', filename='uploads/' + g['before_img']) }}" alt="before" />
+          <img src="{{ url_for('static', filename='uploads/' + g['after_img']) }}" alt="after" />
+        </div>
+        <div class="gi-foot">
+          <span>{{ g['title'] or 'Untitled' }}</span>
+          <button type="button" class="btn btn-ghost btn-sm gi-del" data-id="{{ g['id'] }}">Delete</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-section admin-panel" data-tab="reviews" hidden>
+    <h2 class="admin-h2">Reviews <span class="count">{{ reviews|length }}</span></h2>
+    <form class="review-form panel" method="POST" action="{{ url_for('review_add') }}">
+      <div class="field-row">
+        <label class="field"><span>Customer name</span><input name="name" required /></label>
+        <label class="field"><span>Rating</span>
+          <select name="stars">
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★ (4)</option>
+            <option value="3">★★★ (3)</option>
+            <option value="2">★★ (2)</option>
+            <option value="1">★ (1)</option>
+          </select>
+        </label>
+      </div>
+      <label class="field"><span>Review</span><textarea name="body" rows="3" required></textarea></label>
+      <div class="field">
+        <span>Date posted</span>
+        <div class="mini-cal">
+          <div class="cal-head">
+            <button type="button" id="rvPrev" aria-label="Previous month">&lsaquo;</button>
+            <span id="rvLabel"></span>
+            <button type="button" id="rvNext" aria-label="Next month">&rsaquo;</button>
+          </div>
+          <div class="cal-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+          <div class="cal-grid" id="rvGrid"></div>
+        </div>
+        <input type="hidden" name="date" id="rvDate" />
+      </div>
+      <button type="submit" class="btn btn-silver">Add review</button>
+    </form>
+
+    <div class="admin-grid">
+      {% if not reviews %}<p class="empty-note">No reviews yet.</p>{% endif %}
+      {% for r in reviews %}
+      <article class="review-card">
+        <div class="rv-stars">{% for i in range(5) %}<span class="{{ '' if i < r.stars else 'off' }}">★</span>{% endfor %}</div>
+        <p class="booking-note" style="font-style:italic">“{{ r.body }}”</p>
+        <div class="rv-foot">
+          <span class="rv-name">{{ r.name }}</span>
+          <span class="rv-when">{{ r.when }}</span>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm rv-del" data-id="{{ r.id }}">Delete</button>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="modal" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card confirm-modal">
+      <h3>Delete booking?</h3>
+      <p class="modal-sub" id="confirmText">This can't be undone.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="editModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close aria-label="Close">&times;</button>
+      <h3>Edit booking</h3>
+      <form id="editForm">
+        <input type="hidden" name="id" id="editId" />
+        <div class="field-row">
+          <label class="field"><span>Name</span><input name="name" id="ed_name" /></label>
+          <label class="field"><span>Phone</span><input name="phone" id="ed_phone" /></label>
+        </div>
+        <div class="field-row">
+          <label class="field"><span>Email</span><input name="email" id="ed_email" /></label>
+          <label class="field"><span>Car</span><input name="car" id="ed_car" /></label>
+        </div>
+        <label class="field"><span>Address</span><input name="address" id="ed_address" autocomplete="off" /></label>
+        <div class="field-row">
+          <label class="field"><span>Size</span>
+            <select name="size" id="ed_size">
+              {% for key, s in sizes.items() %}<option value="{{ key }}">{{ s.label }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="field"><span>Service</span>
+            <select name="service" id="ed_service">
+              {% for key, s in services.items() %}<option value="{{ key }}">{{ s.label }}</option>{% endfor %}
+            </select>
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field"><span>Date</span><input name="date" id="ed_date" placeholder="YYYY-MM-DD" /></label>
+          <label class="field"><span>Time</span><input name="time" id="ed_time" placeholder="HH:MM" /></label>
+        </div>
+        <label class="field"><span>Notes</span><textarea name="info" id="ed_info" rows="3"></textarea></label>
+        <button type="submit" class="btn btn-silver">Save changes</button>
+        <div class="travel-result" id="editResult" hidden></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="customerModal" hidden>
+    <div class="modal-backdrop" data-cclose></div>
+    <div class="modal-card">
+      <div class="modal-actions">
+        <button type="button" class="icon-btn" id="custEditBtn" title="Edit">Edit</button>
+        <button type="button" class="icon-btn danger" id="custDelBtn" title="Delete">Delete</button>
+        <button type="button" class="modal-close" data-cclose aria-label="Close">&times;</button>
+      </div>
+      <div id="custView">
+        <h3 id="custName"></h3>
+        <ul class="cust-details" id="custDetails"></ul>
+        <button type="button" class="btn btn-silver" id="custViewBookings">View bookings</button>
+      </div>
+      <form id="custForm" hidden>
+        <h3>Edit customer</h3>
+        <div class="field-row">
+          <label class="field"><span>Name</span><input name="name" id="cu_name" /></label>
+          <label class="field"><span>Phone</span><input name="phone" id="cu_phone" /></label>
+        </div>
+        <div class="field-row">
+          <label class="field"><span>Email</span><input name="email" id="cu_email" /></label>
+          <label class="field"><span>Vehicle</span><input name="car" id="cu_car" /></label>
+        </div>
+        <label class="field"><span>Address</span><input name="address" id="cu_address" autocomplete="off" /></label>
+        <label class="field"><span>Notes</span><textarea name="notes" id="cu_notes" rows="2"></textarea></label>
+        <div class="cust-actions">
+          <button type="submit" class="btn btn-silver btn-sm">Save</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="custCancel">Cancel</button>
+        </div>
+        <div class="travel-result" id="custResult" hidden></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="custBookingsModal" hidden>
+    <div class="modal-backdrop" data-bclose></div>
+    <div class="modal-card">
+      <button type="button" class="modal-close" data-bclose aria-label="Close">&times;</button>
+      <h3>Bookings — <span id="cbName"></span></h3>
+      <div id="cbList" class="cb-list"></div>
+    </div>
+  </div>
+
+  <script id="admin-data" type="application/json">
+    {
+      "availability": {{ availability|tojson }},
+      "slotStart": {{ slot_start }},
+      "slotEnd": {{ slot_end }},
+      "buffer": {{ buffer }},
+      "today": "{{ today }}"
+    }
+  </script>
+  <script id="bookings-data" type="application/json">[
+    {% for b in bookings %}
+      {"id": {{ b['id'] }}, "name": {{ (b['name'] or '')|tojson }}, "phone": {{ (b['phone'] or '')|tojson }},
+       "email": {{ (b['email'] or '')|tojson }}, "address": {{ (b['address'] or '')|tojson }},
+       "car": {{ (b['car'] or '')|tojson }}, "size": {{ (b['size'] or '')|tojson }},
+       "service": {{ (b['service'] or '')|tojson }}, "info": {{ (b['info'] or '')|tojson }},
+       "date": {{ (b['date'] or '')|tojson }}, "time": {{ (b['time'] or '')|tojson }},
+       "price": {{ b['price'] or 0 }}, "travel_fee": {{ b['travel_fee'] or 0 }}}{{ "," if not loop.last }}
+    {% endfor %}
+  ]</script>
+  <script id="customers-data" type="application/json">[
+    {% for c in customers %}
+      {"id": {{ c['id'] }}, "name": {{ (c['name'] or '')|tojson }}, "email": {{ (c['email'] or '')|tojson }},
+       "phone": {{ (c['phone'] or '')|tojson }}, "address": {{ (c['address'] or '')|tojson }},
+       "car": {{ (c['car'] or '')|tojson }}, "notes": {{ (c['notes'] or '')|tojson }},
+       "created": {{ (c['created'] or '')|tojson }}}{{ "," if not loop.last }}
+    {% endfor %}
+  ]</script>
+  <script id="services-data" type="application/json">{{ services|tojson }}</script>
+{% endblock %}
