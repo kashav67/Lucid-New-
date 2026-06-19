@@ -1,0 +1,2 @@
+/* Intentionally minimal. All site styling comes from /static/css/style.css
+   (served as a static asset and linked in root.tsx). Tailwind is not used. */
