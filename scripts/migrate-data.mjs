@@ -65,9 +65,18 @@ console.log(`Wrote ${seedPath}`);
 // R2 upload script for gallery photos
 let sh = "#!/usr/bin/env bash\nset -e\n";
 if (existsSync(uploadsDir)) {
+  const mime = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+  };
   const files = readdirSync(uploadsDir).filter((f) => !f.startsWith("."));
   for (const f of files) {
-    sh += `npx wrangler r2 object put "lucid-gallery/${f}" --file="legacy-flask/static/uploads/${f}" --remote\n`;
+    const ext = f.slice(f.lastIndexOf(".")).toLowerCase();
+    const ct = mime[ext] || "application/octet-stream";
+    sh += `npx wrangler r2 object put "lucid-gallery/${f}" --file="legacy-flask/static/uploads/${f}" --content-type="${ct}" --remote\n`;
   }
   console.log(`Found ${files.length} upload(s) to push to R2.`);
 }
