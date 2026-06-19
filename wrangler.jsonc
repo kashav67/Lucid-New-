@@ -4,10 +4,9 @@
  *
  * Before first deploy, the account owner must:
  *   1. wrangler d1 create lucid          -> paste the database_id below
- *   2. wrangler r2 bucket create lucid-gallery
- *   3. wrangler d1 migrations apply lucid --remote
- *   4. set secrets: ADMIN_PASSWORD, LOCK_PASSWORD, SECRET_KEY, RESEND_API_KEY
- * See DEPLOY.md for the full step-by-step.
+ *   2. wrangler d1 migrations apply lucid --remote
+ *   3. set secrets: ADMIN_PASSWORD, LOCK_PASSWORD, SECRET_KEY, RESEND_API_KEY
+ * Gallery photos are stored in D1 (no R2 needed). See DEPLOY.md.
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
@@ -30,9 +29,6 @@
 			"migrations_dir": "migrations"
 		}
 	],
-
-	// R2 bucket for gallery before/after photos
-	"r2_buckets": [{ "binding": "BUCKET", "bucket_name": "lucid-gallery" }],
 
 	// Non-secret config. Secrets (ADMIN_PASSWORD, LOCK_PASSWORD, SECRET_KEY,
 	// RESEND_API_KEY) are set via `wrangler secret put` — never put them here.

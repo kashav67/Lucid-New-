@@ -1,12 +1,19 @@
-import { env } from "cloudflare:workers";
+import { db } from "../lib/db";
 
-// Streams a gallery image from the private R2 bucket, cached at the edge.
+// Serves a gallery image stored in D1 (base64), cached at the edge.
 export async function loader({ params }: { params: { key: string } }) {
-  const obj = await (env.BUCKET as R2Bucket).get(params.key);
-  if (!obj) return new Response("Not found", { status: 404 });
-  const headers = new Headers();
-  obj.writeHttpMetadata(headers);
-  headers.set("etag", obj.httpEtag);
-  headers.set("cache-control", "public, max-age=31536000, immutable");
-  return new Response(obj.body, { headers });
+  const row = await db()
+    .prepare("SELECT content_type, data FROM images WHERE key=?")
+    .bind(params.key)
+    .first<{ content_type: string; data: string }>();
+  if (!row) return new Response("Not found", { status: 404 });
+  const bin = atob(row.data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Response(bytes, {
+    headers: {
+      "content-type": row.content_type || "application/octet-stream",
+      "cache-control": "public, max-age=31536000, immutable",
+    },
+  });
 }

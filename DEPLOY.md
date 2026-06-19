@@ -18,13 +18,15 @@ npm install
 npx wrangler login        # log in to the account that will host the site
 ```
 
-## 1. Create the database and bucket
+## 1. Create the database
 
 ```bash
 npx wrangler d1 create lucid
 # Copy the printed "database_id" into wrangler.jsonc -> d1_databases[0].database_id
-npx wrangler r2 bucket create lucid-gallery
 ```
+
+Gallery photos are stored in D1 (base64), so **no R2 is needed**. Keep gallery
+photos web-optimized (≲1.4 MB each); for full-size originals, switch to R2 later.
 
 ## 2. Create the schema
 
@@ -60,10 +62,10 @@ Emails are sent from `bookings@luciddetailingva.com` (change `MAIL_FROM` in
 ```bash
 node scripts/migrate-data.mjs
 npx wrangler d1 execute lucid --remote --file=scripts/seed-data.sql
-bash scripts/upload-r2.sh
 ```
 
-(These generated files contain customer data and are git-ignored — don't commit them.)
+The seed includes the gallery photos (embedded as base64). The generated
+`seed-data.sql` contains customer data and is git-ignored — don't commit it.
 
 ## 6. Deploy
 

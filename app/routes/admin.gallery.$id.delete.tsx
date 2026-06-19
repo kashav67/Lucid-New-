@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { db } from "../lib/db";
 import { isAdmin } from "../lib/session";
 
@@ -12,11 +11,7 @@ export async function action({ request, params }: { request: Request; params: { 
     .first<{ before_img: string; after_img: string }>();
   if (row) {
     for (const k of [row.before_img, row.after_img]) {
-      if (k) {
-        try {
-          await (env.BUCKET as R2Bucket).delete(k);
-        } catch {}
-      }
+      if (k) await db().prepare("DELETE FROM images WHERE key=?").bind(k).run();
     }
     await db().prepare("DELETE FROM gallery WHERE id=?").bind(id).run();
   }
